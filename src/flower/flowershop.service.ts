@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from './category.entity';
@@ -18,13 +22,10 @@ export class FlowershopService {
     private readonly employeeRepo: Repository<Employee>,
   ) {}
 
-  async createCategory(data: Partial<Category>) {
-    const item = this.categoryRepo.create({
-      category_name: data.category_name,
-      description: data.description,
-    });
-
-    return this.categoryRepo.save(item);
+  private validateId(id: number) {
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      throw new BadRequestException('Invalid ID');
+    }
   }
 
   async findAllCategories() {
@@ -32,6 +33,8 @@ export class FlowershopService {
   }
 
   async findOneCategory(id: number) {
+    this.validateId(id);
+
     const item = await this.categoryRepo.findOne({
       where: { category_id: id },
     });
@@ -43,15 +46,34 @@ export class FlowershopService {
     return item;
   }
 
-  async updateCategory(id: number, data: Partial<Category>) {
-    await this.findOneCategory(id);
-
-    await this.categoryRepo.update(id, {
+  async createCategory(data: Partial<Category>) {
+    const item = this.categoryRepo.create({
       category_name: data.category_name,
       description: data.description,
     });
 
-    return this.findOneCategory(id);
+    return this.categoryRepo.save(item);
+  }
+
+  async updateCategory(id: number, data: Partial<Category>) {
+    const item = await this.findOneCategory(id);
+    let changed = false;
+
+    if (data.category_name !== undefined) {
+      item.category_name = data.category_name;
+      changed = true;
+    }
+
+    if (data.description !== undefined) {
+      item.description = data.description;
+      changed = true;
+    }
+
+    if (!changed) {
+      throw new BadRequestException('No valid fields to update');
+    }
+
+    return this.categoryRepo.save(item);
   }
 
   async removeCategory(id: number) {
@@ -65,17 +87,13 @@ export class FlowershopService {
     };
   }
 
-  async createSupplier(data: Partial<Supplier>) {
-    const item = this.supplierRepo.create(data);
-
-    return this.supplierRepo.save(item);
-  }
-
   async findAllSuppliers() {
     return this.supplierRepo.find();
   }
 
   async findOneSupplier(id: number) {
+    this.validateId(id);
+
     const item = await this.supplierRepo.findOne({
       where: { supplier_id: id },
     });
@@ -87,14 +105,46 @@ export class FlowershopService {
     return item;
   }
 
+  async createSupplier(data: Partial<Supplier>) {
+    const item = this.supplierRepo.create({
+      supplier_name: data.supplier_name,
+      contact_number: data.contact_number,
+      email: data.email,
+      address: data.address,
+    });
+
+    return this.supplierRepo.save(item);
+  }
+
   async updateSupplier(id: number, data: Partial<Supplier>) {
-    await this.findOneSupplier(id);
+    const item = await this.findOneSupplier(id);
+    let changed = false;
 
-    const { supplier_id, ...fields } = data;
+    if (data.supplier_name !== undefined) {
+      item.supplier_name = data.supplier_name;
+      changed = true;
+    }
 
-    await this.supplierRepo.update(id, fields);
+    if (data.contact_number !== undefined) {
+      item.contact_number = data.contact_number;
+      changed = true;
+    }
 
-    return this.findOneSupplier(id);
+    if (data.email !== undefined) {
+      item.email = data.email;
+      changed = true;
+    }
+
+    if (data.address !== undefined) {
+      item.address = data.address;
+      changed = true;
+    }
+
+    if (!changed) {
+      throw new BadRequestException('No valid fields to update');
+    }
+
+    return this.supplierRepo.save(item);
   }
 
   async removeSupplier(id: number) {
@@ -108,17 +158,13 @@ export class FlowershopService {
     };
   }
 
-  async createEmployee(data: Partial<Employee>) {
-    const item = this.employeeRepo.create(data);
-
-    return this.employeeRepo.save(item);
-  }
-
   async findAllEmployees() {
     return this.employeeRepo.find();
   }
 
   async findOneEmployee(id: number) {
+    this.validateId(id);
+
     const item = await this.employeeRepo.findOne({
       where: { employee_id: id },
     });
@@ -130,14 +176,52 @@ export class FlowershopService {
     return item;
   }
 
+  async createEmployee(data: Partial<Employee>) {
+    const item = this.employeeRepo.create({
+      first_name: data.first_name,
+      last_name: data.last_name,
+      position: data.position,
+      phone: data.phone,
+      email: data.email,
+    });
+
+    return this.employeeRepo.save(item);
+  }
+
   async updateEmployee(id: number, data: Partial<Employee>) {
-    await this.findOneEmployee(id);
+    const item = await this.findOneEmployee(id);
+    let changed = false;
 
-    const { employee_id, ...fields } = data;
+    if (data.first_name !== undefined) {
+      item.first_name = data.first_name;
+      changed = true;
+    }
 
-    await this.employeeRepo.update(id, fields);
+    if (data.last_name !== undefined) {
+      item.last_name = data.last_name;
+      changed = true;
+    }
 
-    return this.findOneEmployee(id);
+    if (data.position !== undefined) {
+      item.position = data.position;
+      changed = true;
+    }
+
+    if (data.phone !== undefined) {
+      item.phone = data.phone;
+      changed = true;
+    }
+
+    if (data.email !== undefined) {
+      item.email = data.email;
+      changed = true;
+    }
+
+    if (!changed) {
+      throw new BadRequestException('No valid fields to update');
+    }
+
+    return this.employeeRepo.save(item);
   }
 
   async removeEmployee(id: number) {
