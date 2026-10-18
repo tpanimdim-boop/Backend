@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { FlowerModule } from './flower/flower.module'; // <--- 1. I-import ito
+import { ShopModule } from './shop/shop.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { FlowerModule } from './flower/flower.module'; // <--- 1. I-import ito
     UsersModule,
     AuthModule,
     FlowerModule, // <--- 3. Idagdag sa imports list
+    ShopModule,
   ],
 })
 export class AppModule {}
