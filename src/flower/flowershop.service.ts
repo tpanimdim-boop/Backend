@@ -76,16 +76,6 @@ export class FlowershopService {
     return this.categoryRepo.save(item);
   }
 
-  async removeCategory(id: number) {
-    const item = await this.findOneCategory(id);
-
-    await this.categoryRepo.remove(item);
-
-    return {
-      deleted: true,
-      category_id: id,
-    };
-  }
 
   async findAllSuppliers() {
     return this.supplierRepo.find();
@@ -234,4 +224,20 @@ export class FlowershopService {
       employee_id: id,
     };
   }
+  async removeCategory(id: number) {
+  const category = await this.categoryRepo.findOne({
+    where: { category_id: id },
+  });
+
+  if (!category) {
+    throw new NotFoundException('Category not found');
+  }
+
+  await this.categoryRepo.remove(category);
+
+  return {
+    deleted: true,
+    category_id: id,
+  };
+}
 }

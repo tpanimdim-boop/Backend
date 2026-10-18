@@ -95,4 +95,10 @@ export class FlowershopController {
 updateCategory(@Param('id') id: string, @Body() body: any) {
   return this.flowershopService.updateCategory(+id, body);
 }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('categories/:id')
+  removeCategory(@Param('id') id: string) {
+    return this.flowershopService.removeCategory(+id);
+  }
 }
