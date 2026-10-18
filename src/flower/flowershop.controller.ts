@@ -89,4 +89,10 @@ export class FlowershopController {
   removeEmployee(@Param('id') id: string) {
     return this.flowershopService.removeEmployee(+id);
   }
+
+  @UseGuards(JwtAuthGuard)
+@Put('categories/:id')
+updateCategory(@Param('id') id: string, @Body() body: any) {
+  return this.flowershopService.updateCategory(+id, body);
+}
 }
