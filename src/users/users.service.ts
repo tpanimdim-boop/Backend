@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ResultSetHeader } from 'mysql2';
 import { DatabaseService } from '../database/database.service';
 import * as bcrypt from 'bcryptjs';
@@ -14,12 +18,24 @@ export class UsersService {
   async createUser(username: string, password: string, role = 'user') {
     const hashed = await bcrypt.hash(password, 10);
 
-    const [result] = await this.pool().execute<ResultSetHeader>(
-      `INSERT INTO users (username, password, role) VALUES (?, ?, ?)`,
-      [username, hashed, role],
-    );
+    try {
+      const [result] = await this.pool().execute<ResultSetHeader>(
+        `INSERT INTO users (username, password, role) VALUES (?, ?, ?)`,
+        [username, hashed, role],
+      );
 
-    return { id: result.insertId, username, role };
+      return { id: result.insertId, username, role };
+    } catch (error) {
+      const code =
+        (error as { driverError?: { code?: string } }).driverError
+          ?.code ?? (error as { code?: string }).code;
+
+      if (code === 'ER_DUP_ENTRY') {
+        throw new ConflictException('Username already taken');
+      }
+
+      throw error;
+    }
   }
 
   async findByUsername(username: string) {
