@@ -10,12 +10,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ShopAccessGuard } from '../auth/shop-access.guard';
 import { ShopService } from './shop.service';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ShopAccessGuard)
 @Controller('shop')
 export class ShopController {
-    FlowershopService: any;
   constructor(private readonly shopService: ShopService) {}
 
   @Get(':resource')
@@ -55,21 +55,4 @@ export class ShopController {
   ) {
     return this.shopService.remove(resource, id);
   }
-  @UseGuards(JwtAuthGuard)
-@Get('categories/:id')
-getOneCategory(@Param('id') id: string) {
-  return this.FlowershopService.findOneCategory(+id);
-}
-
-@UseGuards(JwtAuthGuard)
-@Put('categories/:id')
-updateCategory(@Param('id') id: string, @Body() body: any) {
-  return this.FlowershopService.updateCategory(+id, body);
-}
-
-@UseGuards(JwtAuthGuard)
-@Delete('categories/:id')
-removeCategory(@Param('id') id: string) {
-  return this.FlowershopService.removeCategory(+id);
-}
 }

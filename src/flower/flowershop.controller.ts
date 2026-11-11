@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { FlowershopService } from './flowershop.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { StaffGuard } from '../auth/shop-access.guard';
 
 @Controller()
 export class FlowershopController {
@@ -22,81 +23,81 @@ export class FlowershopController {
     return this.flowershopService.findAllCategories();
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, StaffGuard)
   @Post('categories')
   createCategory(@Body() body: any) {
     return this.flowershopService.createCategory(body);
   }
 
   // ================= SUPPLIERS =================
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, StaffGuard)
   @Get('suppliers')
   getAllSuppliers() {
     return this.flowershopService.findAllSuppliers();
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, StaffGuard)
   @Get('suppliers/:id')
   getOneSupplier(@Param('id') id: string) {
     return this.flowershopService.findOneSupplier(+id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, StaffGuard)
   @Post('suppliers')
   createSupplier(@Body() body: any) {
     return this.flowershopService.createSupplier(body);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, StaffGuard)
   @Put('suppliers/:id')
   updateSupplier(@Param('id') id: string, @Body() body: any) {
     return this.flowershopService.updateSupplier(+id, body);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, StaffGuard)
   @Delete('suppliers/:id')
   removeSupplier(@Param('id') id: string) {
     return this.flowershopService.removeSupplier(+id);
   }
 
   // ================= EMPLOYEES =================
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, StaffGuard)
   @Get('employees')
   getAllEmployees() {
     return this.flowershopService.findAllEmployees();
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, StaffGuard)
   @Get('employees/:id')
   getOneEmployee(@Param('id') id: string) {
     return this.flowershopService.findOneEmployee(+id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, StaffGuard)
   @Post('employees')
   createEmployee(@Body() body: any) {
     return this.flowershopService.createEmployee(body);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, StaffGuard)
   @Put('employees/:id')
   updateEmployee(@Param('id') id: string, @Body() body: any) {
     return this.flowershopService.updateEmployee(+id, body);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, StaffGuard)
   @Delete('employees/:id')
   removeEmployee(@Param('id') id: string) {
     return this.flowershopService.removeEmployee(+id);
   }
 
-  @UseGuards(JwtAuthGuard)
-@Put('categories/:id')
-updateCategory(@Param('id') id: string, @Body() body: any) {
-  return this.flowershopService.updateCategory(+id, body);
-}
+  @UseGuards(JwtAuthGuard, StaffGuard)
+  @Put('categories/:id')
+  updateCategory(@Param('id') id: string, @Body() body: any) {
+    return this.flowershopService.updateCategory(+id, body);
+  }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, StaffGuard)
   @Delete('categories/:id')
   removeCategory(@Param('id') id: string) {
     return this.flowershopService.removeCategory(+id);

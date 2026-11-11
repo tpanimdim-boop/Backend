@@ -3,10 +3,10 @@ import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import * as jwt from 'jsonwebtoken';
+import { jwtSecret } from './auth.config';
 
 @Injectable()
 export class AuthService {
-
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
@@ -30,7 +30,6 @@ export class AuthService {
   }
 
   async login(user: { id: number; username: string; role: string }) {
-
     const payload = {
       sub: user.id,
       username: user.username,
@@ -42,7 +41,7 @@ export class AuthService {
     // create refresh token using separate secret
     const refreshToken = jwt.sign(
       payload,
-      process.env.JWT_REFRESH_TOKEN_SECRET || 'refresh_secret',
+      jwtSecret('JWT_REFRESH_TOKEN_SECRET'),
       {
         expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d',
       } as jwt.SignOptions,
@@ -60,21 +59,18 @@ export class AuthService {
 
   async refreshTokens(refreshToken: string) {
     try {
-
       const decoded: any = jwt.verify(
         refreshToken,
-        process.env.JWT_REFRESH_TOKEN_SECRET || 'refresh_secret',
+        jwtSecret('JWT_REFRESH_TOKEN_SECRET'),
       );
 
       const user = await this.usersService.findById(decoded.sub);
 
-      if (!user)
-        throw new UnauthorizedException('Invalid refresh token');
+      if (!user) throw new UnauthorizedException('Invalid refresh token');
 
       const found = await this.usersService.findByRefreshToken(refreshToken);
 
-      if (!found)
-        throw new UnauthorizedException('Invalid token (not found)');
+      if (!found) throw new UnauthorizedException('Invalid token (not found)');
 
       const payload = {
         sub: found.id,
@@ -86,7 +82,7 @@ export class AuthService {
 
       const newRefresh = jwt.sign(
         payload,
-        process.env.JWT_REFRESH_TOKEN_SECRET || 'refresh_secret',
+        jwtSecret('JWT_REFRESH_TOKEN_SECRET'),
         {
           expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d',
         } as jwt.SignOptions,
@@ -98,7 +94,6 @@ export class AuthService {
         accessToken,
         refreshToken: newRefresh,
       };
-
     } catch (err) {
       throw new UnauthorizedException('Could not refresh tokens');
     }

@@ -1,10 +1,19 @@
-import { Controller, Post, Body, UseGuards, Request, Get } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { AuthenticatedRequest, principal } from './shop-access.guard';
+import { z } from 'zod';
 
 @Controller('auth')
 export class AuthController {
-
   constructor(
     private authService: AuthService,
     private usersService: UsersService,
@@ -29,9 +38,12 @@ export class AuthController {
     return this.authService.login(user);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
-  async logout(@Body() body: { userId: number }) {
-    return this.authService.logout(body.userId);
+  async logout(@Req() request: AuthenticatedRequest, @Body() body: unknown) {
+    if (!z.strictObject({}).safeParse(body).success)
+      throw new BadRequestException('Logout expects an empty JSON object.');
+    return this.authService.logout(principal(request.user).userId);
   }
 
   @Post('refresh')
